@@ -1,0 +1,147 @@
+Writing Programming Languages
+13:00 15 Nov 2017
+
+Lee Keitel
+Network Technician, University of Southern Indiana
+lfkeitel@usi.edu
+
+* Original Presentation
+
+Packet Guardian
+
+- Network registration software
+- Going through a rewrite
+- If you find a bug, let me know 🙂
+
+.link https://github.com/packet-guardian
+
+* Nitrogen
+
+Goals
+
+- Build a functional, useful language
+- Interpreted scripts
+- Simple syntax
+- Handmade
+
+: Open code files: lexer.go, parser.go, eval.go
+: Show semicolon insertion, the parser struct layout, eval's switch case
+
+* Nitrogen - Lexer
+
+- Whitespace is ignored
+- Comments are discarded
+- Automatic semicolon insertion
+
+* Nitrogen - Parser
+
+- Recursive-descent
+- Holds three tokens
+- Can manipulate token stream for sugar
+- Builds an AST
+- Precedence based
+
+* Nitrogen - Syntax sugar
+
+The parser will turn this:
+
+    func myFunc(thing) {
+        println(thing)
+    }
+
+into this:
+
+    let myFunc = func(thing) {
+        println(thing)
+    }
+
+* Nitrogen - Interpreter
+
+- Tree walker over the AST
+- No pre-processing/optimizations
+- Innately garbage collected
+- Lexically scoped
+
+* Nitrogen - Standard Library
+
+- Convert/determine variable type
+- Print to stdout, read input
+- Array and map manipulations
+
+* Nitrogen - Demo
+
+: Demo programs: fibRecursive.ni, fibLoop.ni, objects.ni
+
+* Elemental VM ⚛️
+
+Goals
+
+- Learn about bytecode
+- "Lower level" programming
+- Eventual target for Nitrogen
+
+: Open code files: vm.go, opCodes.go
+
+* Elemental - Internals
+
+- Line based lexer/parser
+- 35 instructions
+- Hybrid stack/register (10 general, 4 special)
+- Assembly-like syntax
+
+* Elemental - Instructions
+
+.html html/instruction-table.html
+
+* Elemental - Code Example
+
+    _start:
+      pushi 100
+    loop:
+      pushi 1
+      sub
+      print
+      jmpgz %loop
+      exit 0
+
+* Elemental - Fibonacci Example
+
+    _start:
+      seti $a 0       ; Accumulator
+      seti $b 1       ; Secondary accumulator
+      pushi 0         ; I0 to survive a pop later in the loop
+
+    loop:
+      print           ; Print current series number
+      pop             ; Pop old value
+      pushreg $a      ; Add next fib # with last
+      pushreg $b
+      add
+      popreg $a       ; Save new fib to B
+      pushreg $a      ; Get next B
+      pushreg $b
+      sub
+      popreg $b       ; Save next B
+      pushreg $a      ; Reload A
+      jmpgz %loop     ; Check for overflow and loop
+      halt 0
+
+* Elemental - Demo
+
+: Demo programs: fibLoop.ebc, fibFunction.ebc
+
+* Project Repositories
+
+Nitrogen:
+
+.link https://github.com/nitrogen-lang/nitrogen
+
+Elemental VM:
+
+.link https://github.com/elemental-vm
+
+These slides:
+
+.link https://github.com/lfkeitel/cs379-presentation
+
+* Questions
